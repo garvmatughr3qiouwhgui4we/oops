@@ -1,0 +1,209 @@
+Source code
+import java.util.Date;
+class User {
+private String name;
+private double balance;
+public User(String name, double balance) {
+this.name = name;
+this.balance = balance;
+}
+public String getName() {
+return name;
+}
+public void setName(String name) {
+this.name = name;
+}
+public double getBalance() {
+return balance;
+}
+public void setBalance(double balance) {
+this.balance = balance;
+}
+public void updateBalance(double amount) {
+this.balance += amount;
+}
+}
+class Transaction {
+protected String description;
+protected double amount;
+protected Date date;
+public Transaction(String description, double amount) {
+this.description = description;
+this.amount = amount;
+this.date = new Date();
+}
+public String getDescription() {
+return description;
+}
+public double getAmount() {
+return amount;
+}
+public Date getDate() {
+return date;
+}
+}
+class Income extends Transaction {
+public Income(String description, double amount) {
+super(description, amount);
+}
+}
+class Expense extends Transaction {
+public Expense(String description, double amount) {
+super(description, amount);
+}
+}
+abstract class AIRecommendation {
+public abstract void recommend();
+}
+class SavingRecommendation extends AIRecommendation {
+private double savingsGoal;
+public SavingRecommendation(double savingsGoal) {
+this.savingsGoal = savingsGoal;
+}
+@Override
+public void recommend() {
+System.out.println("To achieve your savings goal of $" + savingsGoal + ", save 20% of your
+monthly income.");
+}
+}
+class InvestmentRecommendation extends AIRecommendation {
+@Override
+public void recommend() {
+System.out.println("Consider investing in low-risk mutual funds to diversify your portfolio.");
+}
+}
+class Budget {
+private double limit;
+private double spent;
+public Budget(double limit) {
+this.limit = limit;
+this.spent = 0;
+}
+public void addExpense(double amount) {
+spent += amount;
+}
+public boolean isOverBudget() {
+return spent > limit;
+}
+public void displayBudgetStatus() {
+System.out.println("Budget Limit: $" + limit + ", Spent: $" + spent);
+if (isOverBudget()) {
+System.out.println("You are over budget!");
+} else {
+System.out.println("You are within your budget.");
+}
+}
+public double getLimit() {
+return limit;
+}
+public double getSpent() {
+return spent;
+}
+}
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+public class PersonalFinanceManager {
+private static User user;
+private static Budget budget;
+private static DefaultListModel<String> transactionListModel = new DefaultListModel<>();
+public static void main(String[] args) {
+SwingUtilities.invokeLater(PersonalFinanceManager::createAndShowGUI);
+}
+private static void createAndShowGUI() {
+JFrame frame = new JFrame("Personal Finance Manager");
+frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+frame.setSize(800, 600); // Increased window size
+JPanel panel = new JPanel();
+panel.setLayout(new GridLayout(0, 2, 10, 10)); // Added padding between components
+// Labels and Text Fields
+JLabel nameLabel = new JLabel("Name:");
+nameLabel.setFont(new Font("Arial", Font.BOLD, 18));
+JTextField nameField = new JTextField();
+nameField.setFont(new Font("Arial", Font.PLAIN, 16));
+JLabel balanceLabel = new JLabel("Starting Balance:");
+balanceLabel.setFont(new Font("Arial", Font.BOLD, 18));
+JTextField balanceField = new JTextField();
+balanceField.setFont(new Font("Arial", Font.PLAIN, 16));
+JLabel budgetLabel = new JLabel("Monthly Budget:");
+budgetLabel.setFont(new Font("Arial", Font.BOLD, 18));
+JTextField budgetField = new JTextField();
+budgetField.setFont(new Font("Arial", Font.PLAIN, 16));
+// Buttons
+JButton setupButton = new JButton("Set Up");
+setupButton.setFont(new Font("Arial", Font.BOLD, 18));
+setupButton.setBackground(Color.GREEN);
+setupButton.setPreferredSize(new Dimension(150, 50));
+setupButton.addActionListener(e -> {
+String name = nameField.getText();
+double balance = Double.parseDouble(balanceField.getText());
+double budgetLimit = Double.parseDouble(budgetField.getText());
+user = new User(name, balance);
+budget = new Budget(budgetLimit);
+JOptionPane.showMessageDialog(frame, "Setup complete for " + name);
+});
+// Adding components to panel
+panel.add(nameLabel);
+panel.add(nameField);
+panel.add(balanceLabel);
+panel.add(balanceField);
+panel.add(budgetLabel);
+panel.add(budgetField);
+panel.add(new JLabel()); // Spacer
+panel.add(setupButton);
+// Transaction List
+JList<String> transactionList = new JList<>(transactionListModel);
+transactionList.setFont(new Font("Arial", Font.PLAIN, 16));
+// Income Button
+JButton addIncomeButton = new JButton("Add Income");
+addIncomeButton.setFont(new Font("Arial", Font.BOLD, 18));
+addIncomeButton.setBackground(Color.CYAN);
+addIncomeButton.setPreferredSize(new Dimension(150, 50));
+addIncomeButton.addActionListener(e -> {
+String description = JOptionPane.showInputDialog(frame, "Enter income description:");
+double amount = Double.parseDouble(JOptionPane.showInputDialog(frame, "Enter
+income amount:"));
+user.updateBalance(amount);
+transactionListModel.addElement("Income: " + description + " - $" + amount);
+JOptionPane.showMessageDialog(frame, "Income added successfully!");
+});
+// Expense Button
+JButton addExpenseButton = new JButton("Add Expense");
+addExpenseButton.setFont(new Font("Arial", Font.BOLD, 18));
+addExpenseButton.setBackground(Color.PINK);
+addExpenseButton.setPreferredSize(new Dimension(150, 50));
+addExpenseButton.addActionListener(e -> {
+String description = JOptionPane.showInputDialog(frame, "Enter expense description:");
+double amount = Double.parseDouble(JOptionPane.showInputDialog(frame, "Enter
+expense amount:"));
+user.updateBalance(-amount);
+budget.addExpense(amount);
+transactionListModel.addElement("Expense: " + description + " - $" + amount);
+JOptionPane.showMessageDialog(frame, "Expense added successfully!");
+});
+// View Balance Button
+JButton viewBalanceButton = new JButton("View Balance");
+viewBalanceButton.setFont(new Font("Arial", Font.BOLD, 18));
+viewBalanceButton.setBackground(Color.YELLOW);
+viewBalanceButton.setPreferredSize(new Dimension(150, 50));
+viewBalanceButton.addActionListener(e -> {
+String message = "Current Balance: $" + user.getBalance() + "\n" +
+"Budget Limit: $" + budget.getLimit() + ", Spent: $" + budget.getSpent();
+JOptionPane.showMessageDialog(frame, message);
+});
+// Exit Button
+JButton exitButton = new JButton("Exit");
+exitButton.setFont(new Font("Arial", Font.BOLD, 18));
+exitButton.setBackground(Color.RED);
+exitButton.setPreferredSize(new Dimension(150, 50));
+exitButton.addActionListener(e -> System.exit(0));
+panel.add(addIncomeButton);
+panel.add(addExpenseButton);
+panel.add(viewBalanceButton);
+panel.add(exitButton);
+frame.add(panel, BorderLayout.NORTH);
+frame.add(new JScrollPane(transactionList), BorderLayout.CENTER);
+frame.setVisible(true);
+}
+}
+
